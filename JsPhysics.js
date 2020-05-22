@@ -237,7 +237,7 @@
 
     }
 
-    function createcollisionHandler( PhysicalObject1, PhysicalObject2, collisionHandlerFunction ){
+    function createCollisionHandler( PhysicalObject1, PhysicalObject2, collisionHandlerFunction ){
 
         let id = PhysicalObject1.name+PhysicalObject2.name;
 
