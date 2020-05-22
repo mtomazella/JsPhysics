@@ -53,20 +53,29 @@
         physicalObjects.upper.vx = velocity;
         physicalObjects.lower.vx = velocity;
 
-        createColisionHandler( physicalObjects.cube, physicalObjects.upper, function(){
+        function stop(){
+
             physicalObjects.cube.gravity = false;
             physicalObjects.cube.vy = 0;
             physicalObjects.upper.vx = 0;
             physicalObjects.lower.vx = 0;
-        
-        } );
-        createColisionHandler( physicalObjects.cube, physicalObjects.lower, function(){
-            physicalObjects.cube.gravity = false;
-            physicalObjects.cube.vy = 0;
-            physicalObjects.upper.vx = 0;
-            physicalObjects.lower.vx = 0;
-        
-        } );
+
+        }
+        createcollisionHandler( physicalObjects.cube, physicalObjects.upper, stop );
+        createcollisionHandler( physicalObjects.cube, physicalObjects.lower, stop );
+
+        function recicle(){
+
+            if ( physicalObjects.upper.x+physicalObjects.upper.w < 0 ){
+
+                physicalObjects.upper.h = Math.floor(Math.random() * 50)+30;
+                physicalObjects.lower.y = physicalObjects['upper'].y+physicalObjects['upper'].h+50;
+                physicalObjects.upper.x = physicalObjects.lower.x = 200;
+
+            }
+
+        }
+        addToLoop( recicle );
 
         Loop();
 

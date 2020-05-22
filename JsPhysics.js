@@ -28,7 +28,7 @@
                 m: mass,
                 bp: bouncingPercentage, (porcentagem de velocidade conservada depois de colisão )
                 gravity: T/F,
-                colision: T/F
+                collision: T/F
 
             }*/
 
@@ -50,15 +50,15 @@
 
         let keysbeingpressed = [ ];
 
-    /* colision */
+    /* collision */
 
-        let colisionHandlers = {
+        let collisionHandlers = {
 
             /*obj1IdObj2Id: {
 
                 PhysicalObject1: objectName,
                 PhysicalObject2: objectName,
-                colisionHandler: function
+                collisionHandler: function
 
             }*/
 
@@ -70,7 +70,7 @@
 
     /* Loop */
 
-        const loopFunctions = [ detectColisions, gravity, applyvectors, render ];
+        const loopFunctions = [ detectcollisions, gravity, applyvectors, render ];
 
 /* Define Area */
         
@@ -120,13 +120,13 @@
 
 /* Create Physical Object */
 
-    function createPhysicalObject( name, color, posX, posY, width, height, useGravity, useColision, bouncing, mass ){
+    function createPhysicalObject( name, color, posX, posY, width, height, useGravity, usecollision, bouncing, mass ){
 
         if( name != undefined ){
-            physicalObjects[name] = { name: name, color: "black", x: 0, y: 0, w: 0, h: 0, gravity: false, colision: false, bp: 0, m: 0, vx: 0, vy: 0, ax: 0, ay: 0 };
+            physicalObjects[name] = { name: name, color: "black", x: 0, y: 0, w: 0, h: 0, gravity: false, collision: false, bp: 0, m: 0, vx: 0, vy: 0, ax: 0, ay: 0 };
 
-            const values = [ color, posX, posY, width, height, useGravity, useColision, bouncing, mass ];
-            const variables = [ 'color', 'x', 'y', 'w', 'h', 'gravity', 'colision', 'bp', 'm' ];
+            const values = [ color, posX, posY, width, height, useGravity, usecollision, bouncing, mass ];
+            const variables = [ 'color', 'x', 'y', 'w', 'h', 'gravity', 'collision', 'bp', 'm' ];
 
             for ( let i in values ){
 
@@ -185,103 +185,41 @@
 
     }
 
-/* Colision */
+/* collision */
 
-    function apllyColision( colision ){
+    function apllycollision( collision ){
 
-        /*let i = 0;
-        let handler = undefined;*/
-        const id = colision.PhysicalObject1.object.name+colision.PhysicalObject2.object.name
+        const id = collision.PhysicalObject1.name+collision.PhysicalObject2.name
 
-        /*for ( i in colisionHandlers ){
+        if ( collisionHandlers.indexOf(id) != -1 ){
 
-            if ( colision.PhysicalObject1.object == colisionHandlers[i].PhysicalObject1 && colision.PhysicalObject2.object == colisionHandlers[i].PhysicalObject2 )
-                handler = colisionHandlers[i];
-
-        }*/
-
-        /*if ( handler != undefined )
-            handler["function"](colision);
-        else colisionHandlers.default;*/
-
-        if ( colisionHandlers.indexOf(id) != -1 ){
-
-            colisionHandlers[id].function();
+            collisionHandlers[id].function();
 
         }
 
     }
 
-    function detectColisions(){
+    function detectcollisions(){
 
         for ( let i in physicalObjects ){
 
-            if ( physicalObjects[i].colision == true ){
+            if ( physicalObjects[i].collision == true ){
 
                 for ( let j in physicalObjects ){
 
-                    if ( physicalObjects[j].colision == true && i != j ){
+                    if ( physicalObjects[j].collision == true && i != j ){
 
                         const obj1 = physicalObjects[i], obj2 = physicalObjects[j];
 
-                        const posXobj1 = [ ];
+                        if (obj1.x < obj2.x + obj2.w &&
+                        obj1.x + obj1.w > obj2.x &&
+                        obj1.y < obj2.y + obj2.h &&
+                        obj1.y + obj1.h > obj2.y){
 
-                        for ( let x1 = obj1.x; x1 <= obj1.x+obj1.w; x1++ ){
+                            const collision = { PhysicalObject1: obj1, PhysicalObject2: obj2 };
 
-                            posXobj1.push(x1);
-
-                        }
-
-                        const posXobj2 = [ ];
-
-                        for ( let x2 = obj2.x; x2 <= obj2.x+obj2.w; x2++ ){
-
-                            posXobj2.push(x2);
-
-                        }
-
-                        const posYobj1 = [ ];
-
-                        for ( let y1 = obj1.y+obj1.h; y1 >= obj1.y; y1-- ){
-
-                            posYobj1.push(y1);
-
-                        }
-
-                        const posYobj2 = [ ];
-
-                        for ( let y2 = obj2.y+obj2.h; y2 >= obj2.y; y2-- ){
-
-                            posYobj2.push(y2);
-
-                        }
-  
-                        let Xhp = 0;
-                        let Yhp = 0;
-
-                        for ( let p in posXobj1 ){
-
-                            for ( let q in posXobj2 ){
-
-                                if ( posXobj1[p] == posXobj2[q] ) Xhp++;
-
-                            }
-
-                        }
-                        for ( let p in posYobj1 ){
-
-                            for ( let q in posYobj2 ){
-
-                                if ( posYobj1[p] == posYobj2[q] ) Yhp++;
-
-                            }
-
-                        }
-
-                        if ( Yhp > 0 && Xhp > 0 ){
-                            const colision = { PhysicalObject1: { object: obj1, Xpoints: posXobj1, Ypoints: posYobj1 }, PhysicalObject2: { object: obj2, Xpoints: posXobj2, Ypoints: posYobj2 }, HittingPointsX: Xhp, HittingPointsY: Yhp };
-
-                            apllyColision( colision );
+                            apllycollision( collision );
+                
                         }
 
                     }
@@ -294,11 +232,11 @@
 
     }
 
-    function createColisionHandler( PhysicalObject1, PhysicalObject2, colisionHandlerFunction ){
+    function createcollisionHandler( PhysicalObject1, PhysicalObject2, collisionHandlerFunction ){
 
         let id = PhysicalObject1.name+PhysicalObject2.name;
 
-        colisionHandlers[ id ] = { PhysicalObject1: PhysicalObject1, PhysicalObject2: PhysicalObject2, function: colisionHandlerFunction };
+        collisionHandlers[ id ] = { PhysicalObject1: PhysicalObject1, PhysicalObject2: PhysicalObject2, function: collisionHandlerFunction };
 
     }
 
