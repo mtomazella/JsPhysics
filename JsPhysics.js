@@ -16,6 +16,7 @@
 
             /*name: {
 
+                name: name,
                 color: drawingColor,
                 x: XaxisPosition, 
                 y: YaxisPosition, 
@@ -25,8 +26,6 @@
                 vy: velocityY, 
                 ax: accelerationX,
                 ay: accelerationY,
-                m: mass,
-                bp: bouncingPercentage, (porcentagem de velocidade conservada depois de colisão )
                 gravity: T/F,
                 collision: T/F
 
@@ -123,10 +122,10 @@
     function createPhysicalObject( name, color, posX, posY, width, height, useGravity, usecollision, bouncing, mass ){
 
         if( name != undefined ){
-            physicalObjects[name] = { name: name, color: "black", x: 0, y: 0, w: 0, h: 0, gravity: false, collision: false, bp: 0, m: 0, vx: 0, vy: 0, ax: 0, ay: 0 };
+            physicalObjects[name] = { name: name, color: "black", x: 0, y: 0, w: 0, h: 0, gravity: false, collision: false, vx: 0, vy: 0, ax: 0, ay: 0 };
 
-            const values = [ color, posX, posY, width, height, useGravity, usecollision, bouncing, mass ];
-            const variables = [ 'color', 'x', 'y', 'w', 'h', 'gravity', 'collision', 'bp', 'm' ];
+            const values = [ color, posX, posY, width, height, useGravity, usecollision ];
+            const variables = [ 'color', 'x', 'y', 'w', 'h', 'gravity', 'collision' ];
 
             for ( let i in values ){
 
@@ -140,6 +139,12 @@
         }
         else console.log(" Erro na função createPhysicalObject(): nomeie o objeto ");
 
+    }
+
+    function  deletePhysicalObject( physicalObjectName ) {
+
+        delete physicalObjects[ physicalObjectName ];
+        
     }
 
 /* Gravity */
@@ -191,7 +196,7 @@
 
         const id = collision.PhysicalObject1.name+collision.PhysicalObject2.name
 
-        if ( collisionHandlers.indexOf(id) != -1 ){
+        if ( collisionHandlers[ id ] != undefined ){
 
             collisionHandlers[id].function();
 
