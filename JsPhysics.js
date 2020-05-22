@@ -1,12 +1,12 @@
 /* Data */
 
-    let display = null;
+    let display = undefined;
 
     /* Physical Objects */
 
         const globalConstants = {
 
-            gravitationalacceleration: -2,
+            gravitationalacceleration: -0.2,
             backgroundcolor: "white",
             display: { h: 150, w: 300 }
 
@@ -34,12 +34,15 @@
 
         }
 
+    /* inputs */
+
         let inputs = {
 
             /*keyCode: {
 
                 press: pressFunction,
-                release: releaseFunction
+                release: releaseFunction,
+                identifier: (optional)
 
             }*/
 
@@ -47,20 +50,42 @@
 
         let keysbeingpressed = [ ];
 
+    /* colision */
+
+        let colisionHandlers = {
+
+            /*obj1IdObj2Id: {
+
+                PhysicalObject1: objectName,
+                PhysicalObject2: objectName,
+                colisionHandler: function
+
+            }*/
+
+            nothing: function(){},
+
+            default: undefined
+
+        }
+
+    /* Loop */
+
+        const loopFunctions = [ detectColisions, gravity, applyvectors, render ];
+
 /* Define Area */
         
     function defineArea( canvasId ){
 
-        display = document.getElementById(canvasId).getContext("2d", { alpha: false } );
+        display = document.getElementById(canvasId).getContext("2d");
 
     }
 
 /* Input Functions */
 
-    function addInput( keyCode, pressFunction, releaseFunction ){
+    function addInput( keyCode, pressFunction, releaseFunction, identifier ){
 
         if ( inputs[ keyCode ] == undefined )
-            inputs[parseInt(keyCode)] = { press: pressFunction, release: releaseFunction }
+            inputs[parseInt(keyCode)] = { press: pressFunction, release: releaseFunction, identifier: identifier }
         else console.log( "Erro na função addInput: KeyCode já declarado. Remova o keyCode ou use outro" );
 
     }
@@ -84,10 +109,9 @@
     function releasingkey(event){
 
         key = parseInt(event.keyCode);
-        console.log("teste")
-        if ( keysbeingpressed.indexOf(key) != -1 && key in inputs ){
+        if ( keysbeingpressed.indexOf(key) != -1 ){
 
-            (inputs[ key ].release)();
+            if ( inputs[ key ].release != undefined) (inputs[ key ].release)();
             keysbeingpressed.splice(keysbeingpressed.indexOf( key ), 1);
 
         }
@@ -99,7 +123,7 @@
     function createPhysicalObject( name, color, posX, posY, width, height, useGravity, useColision, bouncing, mass ){
 
         if( name != undefined ){
-            physicalObjects[name] = { color: "black", x: 0, y: 0, w: 0, h: 0, gravity: false, colision: false, bp: 0, m: 0, vx: 0, vy: 0, ax: 0, ay: 0 };
+            physicalObjects[name] = { name: name, color: "black", x: 0, y: 0, w: 0, h: 0, gravity: false, colision: false, bp: 0, m: 0, vx: 0, vy: 0, ax: 0, ay: 0 };
 
             const values = [ color, posX, posY, width, height, useGravity, useColision, bouncing, mass ];
             const variables = [ 'color', 'x', 'y', 'w', 'h', 'gravity', 'colision', 'bp', 'm' ];
@@ -161,6 +185,123 @@
 
     }
 
+/* Colision */
+
+    function apllyColision( colision ){
+
+        /*let i = 0;
+        let handler = undefined;*/
+        const id = colision.PhysicalObject1.object.name+colision.PhysicalObject2.object.name
+
+        /*for ( i in colisionHandlers ){
+
+            if ( colision.PhysicalObject1.object == colisionHandlers[i].PhysicalObject1 && colision.PhysicalObject2.object == colisionHandlers[i].PhysicalObject2 )
+                handler = colisionHandlers[i];
+
+        }*/
+
+        /*if ( handler != undefined )
+            handler["function"](colision);
+        else colisionHandlers.default;*/
+
+        if ( colisionHandlers.indexOf(id) != -1 ){
+
+            colisionHandlers[id].function();
+
+        }
+
+    }
+
+    function detectColisions(){
+
+        for ( let i in physicalObjects ){
+
+            if ( physicalObjects[i].colision == true ){
+
+                for ( let j in physicalObjects ){
+
+                    if ( physicalObjects[j].colision == true && i != j ){
+
+                        const obj1 = physicalObjects[i], obj2 = physicalObjects[j];
+
+                        const posXobj1 = [ ];
+
+                        for ( let x1 = obj1.x; x1 <= obj1.x+obj1.w; x1++ ){
+
+                            posXobj1.push(x1);
+
+                        }
+
+                        const posXobj2 = [ ];
+
+                        for ( let x2 = obj2.x; x2 <= obj2.x+obj2.w; x2++ ){
+
+                            posXobj2.push(x2);
+
+                        }
+
+                        const posYobj1 = [ ];
+
+                        for ( let y1 = obj1.y+obj1.h; y1 >= obj1.y; y1-- ){
+
+                            posYobj1.push(y1);
+
+                        }
+
+                        const posYobj2 = [ ];
+
+                        for ( let y2 = obj2.y+obj2.h; y2 >= obj2.y; y2-- ){
+
+                            posYobj2.push(y2);
+
+                        }
+  
+                        let Xhp = 0;
+                        let Yhp = 0;
+
+                        for ( let p in posXobj1 ){
+
+                            for ( let q in posXobj2 ){
+
+                                if ( posXobj1[p] == posXobj2[q] ) Xhp++;
+
+                            }
+
+                        }
+                        for ( let p in posYobj1 ){
+
+                            for ( let q in posYobj2 ){
+
+                                if ( posYobj1[p] == posYobj2[q] ) Yhp++;
+
+                            }
+
+                        }
+
+                        if ( Yhp > 0 && Xhp > 0 ){
+                            const colision = { PhysicalObject1: { object: obj1, Xpoints: posXobj1, Ypoints: posYobj1 }, PhysicalObject2: { object: obj2, Xpoints: posXobj2, Ypoints: posYobj2 }, HittingPointsX: Xhp, HittingPointsY: Yhp };
+
+                            apllyColision( colision );
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+    function createColisionHandler( PhysicalObject1, PhysicalObject2, colisionHandlerFunction ){
+
+        let id = PhysicalObject1.name+PhysicalObject2.name;
+
+        colisionHandlers[ id ] = { PhysicalObject1: PhysicalObject1, PhysicalObject2: PhysicalObject2, function: colisionHandlerFunction };
+
+    }
+
 /* Render */
 
     function render(){
@@ -184,9 +325,20 @@
 
 /* Loop */
 
+    function addToLoop( newFunctionName, priority ){
+
+        if ( priority == 'high' ) loopFunctions.unshift( newFunctionName )
+        else loopFunctions.push( newFunctionName );
+
+    }
+
     function Loop(){
 
-        gravity(); applyvectors(); render();
+        for ( let i in loopFunctions ){
+
+            loopFunctions[i]();
+
+        }
 
         requestAnimationFrame(Loop);
 
