@@ -14,14 +14,54 @@
 
         let physicalObjects = {
 
-            /*name: {
+            /*square: {
 
                 name: name,
                 color: drawingColor,
+                type: square,
                 x: XaxisPosition, 
                 y: YaxisPosition, 
                 w: drawingWidth, 
                 h: drawingHeight, 
+                vx: velocityX,
+                vy: velocityY, 
+                ax: accelerationX,
+                ay: accelerationY,
+                gravity: T/F,
+                collision: T/F
+
+            }*/
+
+            /*circle: {
+
+                name: name,
+                color: drawingColor,
+                type: circle,
+                x: XaxisPosition, 
+                y: YaxisPosition, 
+                r: radius,
+                vx: velocityX,
+                vy: velocityY, 
+                ax: accelerationX,
+                ay: accelerationY,
+                gravity: T/F,
+                collision: T/F
+
+            }*/
+
+            /*custom: {
+
+                name: name,
+                type: custom,
+                drawing: function,
+                x: XaxisPosition,
+                y: YaxisPosition,
+                collisionType: square/circle,
+                collisionX: collisionXpoint,
+                collisionY: collisionYpoint,
+                collisionW: squareCollisionWidth,
+                collisionH: squareCollisionHeight,
+                collisionR: circularCollisionRadius,
                 vx: velocityX,
                 vy: velocityY, 
                 ax: accelerationX,
@@ -63,8 +103,6 @@
 
             nothing: function(){},
 
-            default: undefined
-
         }
 
     /* Loop */
@@ -73,9 +111,13 @@
 
 /* Define Area */
         
-    function defineArea( canvasId ){
+    function defineArea( canvasId, width, height ){
 
-        display = document.getElementById(canvasId).getContext("2d");
+        canvas = document.getElementById(canvasId);
+        display = canvas.getContext("2d");
+
+        canvas.width = globalConstants.display.w = width;
+        canvas.height = globalConstants.display.h = height;
 
     }
 
@@ -119,13 +161,57 @@
 
 /* Create Physical Object */
 
-    function createPhysicalObject( name, color, posX, posY, width, height, useGravity, usecollision, bouncing, mass ){
+    function createPhysicalObject( name, color, posX, posY, width, height, useGravity, useCollision ){
 
         if( name != undefined ){
-            physicalObjects[name] = { name: name, color: "black", x: 0, y: 0, w: 0, h: 0, gravity: false, collision: false, vx: 0, vy: 0, ax: 0, ay: 0 };
+            physicalObjects[name] = { name: name, type: 'square', color: "black", x: 0, y: 0, w: 0, h: 0, gravity: false, collision: false, vx: 0, vy: 0, ax: 0, ay: 0 };
 
-            const values = [ color, posX, posY, width, height, useGravity, usecollision ];
+            const values = [ color, posX, posY, width, height, useGravity, useCollision ];
             const variables = [ 'color', 'x', 'y', 'w', 'h', 'gravity', 'collision' ];
+
+            for ( let i in values ){
+
+                if ( values[i] != null && values[i] != undefined ){
+
+                    physicalObjects[name][variables[i]] = values[i];
+
+                }
+
+            }
+        }
+        else console.log(" Erro na função createPhysicalObject(): nomeie o objeto ");
+
+    }
+
+    function createCircularPhysicalObject( name, color, posX, posY, radius, useGravity, useCollision ){
+
+        if( name != undefined ){
+            physicalObjects[name] = { name: name, type: 'circle', color: "black", x: 0, y: 0, r: 0, gravity: false, collision: false, vx: 0, vy: 0, ax: 0, ay: 0 };
+
+            const values = [ color, posX, posY, radius, useGravity, useCollision ];
+            const variables = [ 'color', 'x', 'y', 'r', 'gravity', 'collision' ];
+
+            for ( let i in values ){
+
+                if ( values[i] != null && values[i] != undefined ){
+
+                    physicalObjects[name][variables[i]] = values[i];
+
+                }
+
+            }
+        }
+        else console.log(" Erro na função createPhysicalObject(): nomeie o objeto ");
+
+    }
+
+    function createCustomPhysicalObject( name, drawingFunction, posX, posY, useGravity, useCollision ){
+
+        if( name != undefined ){
+            physicalObjects[name] = { name: name, type: 'custom', drawing: drawingFunction, x: 0, y: 0, gravity: false, collision: false, vx: 0, vy: 0, ax: 0, ay: 0 };
+
+            const values = [ posX, posY, useGravity, useCollision ];
+            const variables = [ 'x', 'y', 'gravity', 'collision' ];
 
             for ( let i in values ){
 
@@ -192,7 +278,7 @@
 
 /* collision */
 
-    function apllycollision( collision ){
+    function applycollision( collision ){
 
         const id = collision.PhysicalObject1.name+collision.PhysicalObject2.name
 
@@ -208,23 +294,92 @@
 
         for ( let i in physicalObjects ){
 
-            if ( physicalObjects[i].collision == true ){
+            const obj = physicalObjects[i];
+
+            if ( obj.collision == true ){
+
+                let collision1 = '';
+
+                if ( obj.type == 'square' || obj.collisionType == 'square' ) collision1 = 's'
+                else collision1 = 'c';
 
                 for ( let j in physicalObjects ){
 
                     if ( physicalObjects[j].collision == true && i != j ){
 
-                        const obj1 = physicalObjects[i], obj2 = physicalObjects[j];
+                        const obj2 = physicalObjects[j];
+                        let collision2 = '';
 
-                        if (obj1.x < obj2.x + obj2.w &&
-                        obj1.x + obj1.w > obj2.x &&
-                        obj1.y < obj2.y + obj2.h &&
-                        obj1.y + obj1.h > obj2.y){
+                        if ( obj2.type == 'square' || obj2.collisionType == 'square' ) collision2 = 's'
+                        else collision2 = 'c';
 
-                            const collision = { PhysicalObject1: obj1, PhysicalObject2: obj2 };
+                        const typeCollision = collision1+collision2;
+                        const collision = { PhysicalObject1: obj, PhysicalObject2: obj2 };
 
-                            apllycollision( collision );
-                
+                        let testX = 0;
+                        let testY = 0;
+                        let distX = 0;
+                        let distY = 0;
+                        let distance = 0;
+
+                        switch ( typeCollision ){
+
+                            case 'ss':
+
+                                if (obj.x < obj2.x + obj2.w &&
+                                    obj.x + obj.w > obj2.x &&
+                                    obj.y < obj2.y + obj2.h &&
+                                    obj.y + obj.h > obj2.y){
+            
+                                    applycollision( collision );
+                            
+                                }
+
+                            break;
+
+                            case 'cc':
+
+                                if (Math.abs( obj.x+obj.r ) >= (obj2.x-obj2.r) &&
+                                    Math.abs( obj.y+obj.r ) >= (obj2.y-obj2.r) ){
+
+                                    if ( Math.sqrt( Math.pow( obj2.y-obj.y, 2) + Math.pow( obj2.x-obj.x, 2 ) ) < obj.r+obj2.r  ){
+                                        applycollision( collision );
+                                    }
+
+                                }
+
+                            break;
+
+                            case 'sc':
+
+                                if (obj2.x < obj.x)             testX = obj.x;     
+                                else if (obj2.x > obj.x+obj.w)  testX = obj.x+obj.w;   
+                                if (obj2.y < obj.y)             testY = obj.y;
+                                else if (obj2.y > obj.y+obj.h)  testY = obj.y+obj.h;  
+
+                                distX = obj2.x-testX;
+                                distY = obj2.y-testY;
+                                distance = Math.sqrt( (distX*distX) + (distY*distY) );
+
+                                if (distance <= obj2.r) applycollision( collision );
+
+                            break;
+
+                            case 'cs':
+
+                                if (obj.x < obj2.x)             testX = obj2.x;     
+                                else if (obj.x > obj2.x+obj2.w) testX = obj2.x+obj2.w;   
+                                if (obj.y < obj2.y)             testY = obj2.y;
+                                else if (obj.y > obj2.y+obj2.h) testY = obj2.y+obj2.h;  
+
+                                distX = obj.x-testX;
+                                distY = obj.y-testY;
+                                distance = Math.sqrt( (distX*distX) + (distY*distY) );
+
+                                if (distance <= obj.r) applycollision( collision );
+
+                            break;
+
                         }
 
                     }
@@ -245,6 +400,30 @@
 
     }
 
+    function setCustomCollision( physicalObject, type, posX, posY, widthOrRadius, height ){
+
+        if ( physicalObject.type == 'custom' ){
+            if ( type == "square" ){
+
+                physicalObject.collisionType = 'square';
+                physicalObject.collisionX = posX;
+                physicalObject.collisionY = posY;
+                physicalObject.collisionW = widthOrRadius;
+                physicalObject.collisionH = height;
+
+            }
+            else if ( type == "circle" ){
+
+                physicalObject.collisionType = 'circle';
+                physicalObject.collisionX = posX;
+                physicalObject.collisionY = posY;
+                physicalObject.collisionR = widthOrRadius;
+
+            } else console.log( 'Erro na função setCustomCollision(): insira um tipo válido.' )
+        } else console.log( 'Erro na função setCustomCollision(): colisões customizadas são utilizadas apenas em objetos do tipo "custom".' );
+
+    }
+
 /* Render */
 
     function render(){
@@ -258,11 +437,30 @@
 
         for ( let i in physicalObjects ){
 
-            display.fillStyle = physicalObjects[i].color;
-            display.fillRect( physicalObjects[i].x, physicalObjects[i].y, physicalObjects[i].w, physicalObjects[i].h );
+            const obj = physicalObjects[i];
+
+            if ( obj.type == 'square' ){
+
+                display.fillStyle = obj.color;
+                display.fillRect( obj.x, obj.y, obj.w, obj.h );
+
+            }
+            else if ( obj.type == 'circle' ){
+
+                display.fillStyle = obj.color;
+                display.beginPath();
+                display.arc(obj.x, obj.y, obj.r, Math.PI, Math.PI*3);
+                display.fill();
+
+            }
+            else if ( obj.type == 'custom' ){
+
+                display.fillStyle = obj.color;
+                obj.drawing();
+
+            }
 
         }
-
 
     }
 

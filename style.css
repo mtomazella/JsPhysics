@@ -1,0 +1,20 @@
+body{
+
+    background-color: white;
+    margin: 0;
+    padding: 0;
+
+}
+
+#game{
+
+    height: 99vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: cyan;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
+    border-width: 0px;
+}

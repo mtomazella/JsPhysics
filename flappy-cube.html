@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+
+        <title>Flappy Cube</title>
+
+        <!-- Stylesheets -->
+        <link rel="stylesheet" type="text/css" href="style.css">   
+        
+        <!-- JsPhysics -->
+        <script type="application/javascript" src="JsPhysics.js">        </script>
+
+    </head>
+
+    <body>
+
+        <canvas id="game">        </canvas>
+
+    </body>
+
+    <script>
+
+        defineArea( 'game' );
+
+        createPhysicalObject( 'cube', 'black', 50, 75, 10, 10, true, true );
+
+        addInput( 32, function(){ if ( physicalObjects['cube'].vy+5 < 7 ) physicalObjects['cube'].vy += 5 } );
+        function topBottonLimits(){ 
+
+            if ( physicalObjects.cube.y+physicalObjects.cube.h > 150 ){
+
+                physicalObjects.cube.y = 150-physicalObjects.cube.h;
+                physicalObjects.cube.vy = 2;
+
+            }
+            if ( physicalObjects.cube.y < 0 ){
+                physicalObjects.cube.y = 0;
+                physicalObjects.cube.vy = 0
+            }
+
+         }
+        addToLoop( topBottonLimits, 'high' ),
+
+        createPhysicalObject( 'upper', 'green', 200, 0, 30, 80, false, true );
+        createPhysicalObject( 'lower', 'green', 200, physicalObjects['upper'].y+physicalObjects['upper'].h+50, 30, 100, false, true );
+
+        const velocity = -2
+
+        physicalObjects.upper.vx = velocity;
+        physicalObjects.lower.vx = velocity;
+
+        function stop(){
+
+            physicalObjects.cube.gravity = false;
+            physicalObjects.cube.vy = 0;
+            physicalObjects.upper.vx = 0;
+            physicalObjects.lower.vx = 0;
+
+        }
+        createcollisionHandler( physicalObjects.cube, physicalObjects.upper, stop );
+        createcollisionHandler( physicalObjects.cube, physicalObjects.lower, stop );
+
+        function recicle(){
+
+            if ( physicalObjects.upper.x+physicalObjects.upper.w < 0 ){
+
+                physicalObjects.upper.h = Math.floor(Math.random() * 50)+30;
+                physicalObjects.lower.y = physicalObjects['upper'].y+physicalObjects['upper'].h+50;
+                physicalObjects.upper.x = physicalObjects.lower.x = 200;
+
+            }
+
+        }
+        addToLoop( recicle );
+
+        Loop();
+
+    </script>
+
+</html>

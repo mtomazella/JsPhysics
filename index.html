@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+
+        <title>JsPhysics</title>
+
+        <!-- Stylesheets -->
+        <link rel="stylesheet" type="text/css" href="style.css">   
+        
+        <!-- JsPhysics -->
+        <script type="application/javascript" src="JsPhysics.js">        </script>
+
+    </head>
+
+    <body>
+
+        <canvas id="game">        </canvas>
+
+    </body>
+
+    <script>
+
+        defineArea( 'game', 300*10, 150*10 );
+
+        createPhysicalObject( 'teste', 'black', 1500, 750, 100, 100, false, true );
+
+        function draw(){
+
+            display.fillStyle = 'blue';
+            display.beginPath();
+            display.arc(physicalObjects.teste2.x, physicalObjects.teste2.y, 5, Math.PI, Math.PI*2);
+            display.fill();
+
+        }
+
+        //createCustomPhysicalObject( 'teste2', draw, 170, 75, false, true );
+
+        createCircularPhysicalObject( 'teste2', 'black', 980, 75*10, 200, false, true );
+
+        //setCustomCollision( physicalObjects.teste2, 'circle', physicalObjects.teste2.x, physicalObjects.teste2.y, 10, 5 );
+
+        createCollisionHandler( physicalObjects.teste2, physicalObjects.teste, function(){ physicalObjects.teste.color = 'red' } );
+
+        let player = 'teste';
+
+        addInput( 32, function(){ if ( player == 'teste' ) player = 'teste2'; else player = 'teste' } );
+
+        addInput( 38, function(){physicalObjects[player].vy += 20;}, function(){physicalObjects[player].vy -= 20;}, 'playerMovement' );
+        addInput( 39, function(){physicalObjects[player].vx += 20;}, function(){physicalObjects[player].vx -= 20;}, 'playerMovement' );
+        addInput( 37, function(){physicalObjects[player].vx -= 20;}, function(){physicalObjects[player].vx += 20;}, 'playerMovement' );
+        addInput( 40, function(){physicalObjects[player].vy -= 20;}, function(){physicalObjects[player].vy += 20;}, 'playerMovement' );
+
+        Loop();
+
+    </script>
+
+</html>
