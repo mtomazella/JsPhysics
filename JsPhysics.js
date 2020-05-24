@@ -265,6 +265,8 @@
 
             physicalObjects[i].x += physicalObjects[i].vx;
             physicalObjects[i].y += -physicalObjects[i].vy;
+            physicalObjects[i].collisionX += physicalObjects[i].vx;
+            physicalObjects[i].collisionY += -physicalObjects[i].vy;
 
         }
 
@@ -295,13 +297,24 @@
         for ( let i in physicalObjects ){
 
             const obj = physicalObjects[i];
+            const change = [ 'collisionX', 'collisionY', 'collisionW', 'collisionH', 'collisionR' ];
 
             if ( obj.collision == true ){
 
                 let collision1 = '';
+                const var1 = [ 'x', 'y', 'w', 'h', 'r' ];
 
                 if ( obj.type == 'square' || obj.collisionType == 'square' ) collision1 = 's'
                 else collision1 = 'c';
+                if (obj.type == 'custom'){
+
+                    for  ( let a in var1 ){
+
+                        var1[a] = change[a];
+
+                    }
+
+                };
 
                 for ( let j in physicalObjects ){
 
@@ -309,12 +322,22 @@
 
                         const obj2 = physicalObjects[j];
                         let collision2 = '';
+                        const var2 = [ 'x', 'y', 'w', 'h', 'r' ];
 
                         if ( obj2.type == 'square' || obj2.collisionType == 'square' ) collision2 = 's'
                         else collision2 = 'c';
+                        if (obj.type == 'custom'){
+
+                            for  ( let a in var1 ){
+
+                                var1[a] = change[a];
+        
+                            }
+
+                        };
 
                         const typeCollision = collision1+collision2;
-                        const collision = { PhysicalObject1: obj, PhysicalObject2: obj2 };
+                        const collision = { PhysicalObject1: physicalObjects[i], PhysicalObject2: physicalObjects[j] };
 
                         let testX = 0;
                         let testY = 0;
@@ -326,10 +349,10 @@
 
                             case 'ss':
 
-                                if (obj.x < obj2.x + obj2.w &&
-                                    obj.x + obj.w > obj2.x &&
-                                    obj.y < obj2.y + obj2.h &&
-                                    obj.y + obj.h > obj2.y){
+                                if (obj[var1[0]] < obj2[var2[0]] + obj2[var2[2]] &&
+                                    obj[var1[0]] + obj[var1[2]]  > obj2[var2[0]] &&
+                                    obj[var1[1]] < obj2[var2[1]] + obj2[var2[3]] &&
+                                    obj[var1[1]] + obj[var1[3]]  > obj2[var2[1]]){
             
                                     applycollision( collision );
                             
@@ -339,10 +362,10 @@
 
                             case 'cc':
 
-                                if (Math.abs( obj.x+obj.r ) >= (obj2.x-obj2.r) &&
-                                    Math.abs( obj.y+obj.r ) >= (obj2.y-obj2.r) ){
+                                if (Math.abs( obj[var1[0]]+obj[var1[4]] ) >= (obj2[var2[0]]-obj2[var2[4]]) &&
+                                    Math.abs( obj[var1[1]]+obj[var1[4]] ) >= (obj2[var2[1]]-obj2[var2[4]]) ){
 
-                                    if ( Math.sqrt( Math.pow( obj2.y-obj.y, 2) + Math.pow( obj2.x-obj.x, 2 ) ) < obj.r+obj2.r  ){
+                                    if ( Math.sqrt( Math.pow( obj2[var2[1]]-obj[var1[1]], 2) + Math.pow( obj2[var2[0]]-obj[var1[0]], 2 ) ) < obj[var1[4]]+obj2[var2[4]]  ){
                                         applycollision( collision );
                                     }
 
@@ -352,31 +375,31 @@
 
                             case 'sc':
 
-                                if (obj2.x < obj.x)             testX = obj.x;     
-                                else if (obj2.x > obj.x+obj.w)  testX = obj.x+obj.w;   
-                                if (obj2.y < obj.y)             testY = obj.y;
-                                else if (obj2.y > obj.y+obj.h)  testY = obj.y+obj.h;  
+                                if (obj2[var2[0]]       < obj[var1[0]])                    testX = obj[var1[0]];     
+                                else if (obj2[var2[0]]  > obj[var1[0]]+obj[var1[2]])       testX = obj[var1[0]]+obj[var1[2]];   
+                                if (obj2[var2[1]]       < obj[var1[1]])                    testY = obj[var1[1]];
+                                else if (obj2[var2[1]]  > obj[var1[1]]+obj[var1[3]])       testY = obj[var1[1]]+obj[var1[3]];  
 
-                                distX = obj2.x-testX;
-                                distY = obj2.y-testY;
+                                distX = obj2[var2[0]]-testX;
+                                distY = obj2[var2[1]]-testY;
                                 distance = Math.sqrt( (distX*distX) + (distY*distY) );
 
-                                if (distance <= obj2.r) applycollision( collision );
+                                if (distance <= obj2[var2[4]]) applycollision( collision );
 
                             break;
 
                             case 'cs':
 
-                                if (obj.x < obj2.x)             testX = obj2.x;     
-                                else if (obj.x > obj2.x+obj2.w) testX = obj2.x+obj2.w;   
-                                if (obj.y < obj2.y)             testY = obj2.y;
-                                else if (obj.y > obj2.y+obj2.h) testY = obj2.y+obj2.h;  
+                                if (obj[var1[0]]        < obj2[var2[0]])                    testX = obj2[var2[0]];     
+                                else if (obj[var1[0]]   > obj2[var2[0]]+obj2[var2[2]])      testX = obj2[var2[0]]+obj2[var2[2]];   
+                                if (obj[var1[1]]        < obj2[var2[1]])                    testY = obj2[var2[1]];
+                                else if (obj[var1[1]]   > obj2[var2[1]]+obj2[var1[3]])      testY = obj2[var2[1]]+obj2[var1[3]];  
 
-                                distX = obj.x-testX;
-                                distY = obj.y-testY;
+                                distX = obj[var1[0]]-testX;
+                                distY = obj[var1[1]]-testY;
                                 distance = Math.sqrt( (distX*distX) + (distY*distY) );
 
-                                if (distance <= obj.r) applycollision( collision );
+                                if (distance <= obj[var1[4]]) applycollision( collision );
 
                             break;
 
