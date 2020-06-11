@@ -292,7 +292,7 @@
 
         if ( collisionHandlers[ id ] != undefined ){
 
-            collisionHandlers[id].function();
+            collisionHandlers[id].function(collision);
 
         }
 
