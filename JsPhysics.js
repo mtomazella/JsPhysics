@@ -73,6 +73,9 @@
 
         }
 
+
+
+
     /* inputs */
 
         let inputs = {
@@ -181,6 +184,7 @@
         }
         else console.log(" Erro na função createPhysicalObject(): nomeie o objeto ");
 
+        return physicalObjects.name;
     }
 
     function createCircularPhysicalObject( name, color, posX, posY, radius, useGravity, useCollision ){
@@ -203,6 +207,7 @@
         }
         else console.log(" Erro na função createPhysicalObject(): nomeie o objeto ");
 
+        return physicalObjects.name;
     }
 
     function createCustomPhysicalObject( name, drawingFunction, posX, posY, useGravity, useCollision ){
@@ -225,6 +230,7 @@
         }
         else console.log(" Erro na função createPhysicalObject(): nomeie o objeto ");
 
+        return physicalObjects.name;
     }
 
     function  deletePhysicalObject( physicalObjectName ) {
